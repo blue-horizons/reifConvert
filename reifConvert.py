@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import time
 import binascii
 from math import ceil, sqrt
 from PIL import Image
@@ -15,6 +16,7 @@ def rgb_to_ansi(r, g, b):
     return f"\u001b[38;5;{code}m"
 
 def encode(input_filename, output_filename):
+    startTime = time.time()
     # Read in the input file as binary data
     with open(input_filename, "rb") as f:
         data = f.read()
@@ -61,10 +63,11 @@ def encode(input_filename, output_filename):
     # print(output_filename)
     img.save(output_filename)
 
-    print("\033[31m@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\033[0m")
-    print(f"File \033[32m{input_filename}\033[0m saved to \034[35m{output_filename}\033[0m")
+    endTime = time.time()
+    print("\033[31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m")
+    print(f"File \033[32m{input_filename}\033[0m saved to \033[35m{output_filename}\033[0m")
     print(f"Image size: {width} x {height} with a count of {i} pixels.")
-
+    print(f"File converted in {endTime - startTime}")
     # Rename to reif
     # os.system(f"move {output_filename}.bmp {output_filename}.reif")
 
@@ -94,12 +97,17 @@ def decode(input_filename, output_filename, extension):
     # Convert the hexadecimal string to binary
     binary_data = binascii.unhexlify(hex_data)
     # Remove control characters
-    binary_data = binary_data.join(filter(lambda x: x >= ' ', binary_data))
+    binary_data = bytes(filter(lambda x: x >= 32, binary_data))
 
     # Write the cleaned data back to the file
     with open(output_filename + "." + extension, 'wb') as f:
         f.write(binary_data)
 
+    with open(output_filename + "." + extension, 'r+') as f:
+        contents = f.read()
+        contents = contents.replace("  ", "\n")
+        f.write(contents)
+    
 ###################################################################################################
 
 if __name__ == "__main__":
@@ -144,7 +152,11 @@ if __name__ == "__main__":
     if args.mode[0] == "e":
         encode(inputFile, output_filename)
     elif args.mode[0] == "d":
-        extension = args.extension.split(".")[len(args.extension.split("."))]
+        if args.extension != None:
+            extension = args.extension.split(".")[len(args.extension.split("."))]
+        else:
+            extension = "txt"
+        print("extension " + extension)
         decode(inputFile, output_filename, extension)
     else:
         print("Invalid mode")
