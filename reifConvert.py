@@ -1,18 +1,32 @@
-import sys
+import sys, os
 import binascii
 from math import ceil, sqrt
 from PIL import Image
 
-def remove_control_characters(filename):
-        with open("tmp", 'r') as f:
-            data = f.read()
+global remove_file
+global copy_file
+global clear
 
-        # Remove control characters
-        data = ''.join(filter(lambda x: x >= ' ', data))
+def commands():
+    if "win" in sys.platform:
+        remove_file = "del"
+        copy_file = "copy"
+        clear = "cls"
+    else:
+        remove_file = "rm"
+        copy_file = "cp"
+        clear = "cls"
 
-        # Write the cleaned data back to the file
-        with open(filename, 'w') as f:
-            f.write(data)
+
+def remove_control_characters(filename, binary_data):
+    # Remove control characters
+    binary_data.join(filter(lambda x: x >= ' ', binary_data))
+
+    # Write the cleaned data back to the file
+    with open(filename, 'w') as f:
+        f.write(binary_data)
+
+    # os.system(remove_file + " tmp")
 
 def encode(filename):
     # Read in the input file as binary data
@@ -76,9 +90,7 @@ def decode(filename):
     binary_data = binascii.unhexlify(hex_data)
     # binary_data.replace("\x00","")
 
-    # Save the decoded data to a temprary file
-    with open(f"tmp", "wb") as f:
-        f.write(binary_data)
+    
 
     remove_control_characters(f"{filename}.txt")
 
@@ -88,6 +100,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python convert.py <filename> <encode|decode>")
     else:
+        commands()
         # Determine whether to encode or decode the file
         filename = sys.argv[2]
         mode = sys.argv[1]
