@@ -10,6 +10,11 @@ python3 reif.py <encode | decode> <filename>
 ``` 
 `<filename>` can be any file, binary or text
 
+Example Usage:
+```bash
+python3 txt2reif.py encode filename.ext
+```
+
 ## Dependancies:
 > Pillow : `pip install pillow`
 
