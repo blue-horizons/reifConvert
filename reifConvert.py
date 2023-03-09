@@ -5,6 +5,9 @@ import time
 import binascii
 from math import ceil, sqrt
 from PIL import Image
+from datetime import datetime
+def now():
+    return datetime.now()
 
 def rgb_to_ansi(r, g, b):
     # Map each RGB component to the closest value from the 216-color cube
@@ -52,8 +55,7 @@ def encode(input_filename, output_filename):
 
         # Set the pixel color in the image
         img.putpixel((x, y), (r, g, b))
-        print(str(i) + " Pixel Color: " + rgb_to_ansi(r, g, b))
-        print(str(i) + f" img.putpixel(({x}, {y}), (\033[31mr {r}\033[0m, \033[32mg {g}\033[0m, \033[34mb {b}\033[0m))")
+        print(str(i) + " Pixel Color: " + rgb_to_ansi(r, g, b) + f"""∎\n\t Pixel Co-ords: ({x}, {y}) \n Pixel RGB value: \n\t\033[31mr {r}\033[0m, \033[32mg {g}\033[0m, \033[34mb {b}\033[0m""")
 
     # Save the image to a file
     # print(output_filename)
@@ -67,7 +69,10 @@ def encode(input_filename, output_filename):
     print("\033[31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m")
     print(f"File \033[32m{input_filename}\033[0m saved to \033[35m{output_filename}\033[0m")
     print(f"Image size: {width} x {height} with a count of {i} pixels.")
-    print(f"File converted in {endTime - startTime}")
+    print(f"File converted in {endTime - startTime}s")
+
+    with open(f"log.csv","a") as log:
+        log.write(f""" {input_filename},{output_filename},{width},{height},{endTime - startTime}\n,,,,,rgb({r}\,{g}\,{b})""")
     # Rename to reif
     # os.system(f"move {output_filename}.bmp {output_filename}.reif")
 
