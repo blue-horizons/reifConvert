@@ -149,7 +149,6 @@ if __name__ == "__main__":
         output_filename = args.output
 
     print(output_filename)
-
     print("Input File " + inputFile)
     print("Output File " + output_filename + " |")
 

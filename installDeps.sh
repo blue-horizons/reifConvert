@@ -1,1 +1,1 @@
-python3 -m pip install PIL
+python3 -m pip install pillow
