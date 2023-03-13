@@ -6,6 +6,9 @@ import binascii
 from math import ceil, sqrt
 from PIL import Image
 from datetime import datetime
+
+global output
+
 def now():
     return datetime.now()
 
@@ -26,11 +29,13 @@ def encode(input_filename, output_filename):
 
     # Convert each byte to an 8-bit binary string and concatenate them
     binary_data = "".join([format(byte, "08b") for byte in data])
-    print("binary_data " + binary_data)
+    if output:
+        print("binary_data " + binary_data)
 
     # Pad the binary data with zeros so its length is a multiple of 24 bits
     padding_length = 24 - len(binary_data) % 24
-    binary_data += "0" * padding_length
+    if output:
+        binary_data += "0" * padding_length
 
     # Split the binary data into groups of 24 bits, convert each group to a hex string, and concatenate them
     hex_data = "".join([hex(int(binary_data[i:i+24], 2))[2:].zfill(6)
@@ -42,7 +47,8 @@ def encode(input_filename, output_filename):
 
     # Create a new image with the calculated dimensions
     img = Image.new("RGB", (width, height), color="black")
-    print(img)
+    if output:
+        print(img)
 
     # Draw each pixel in the image
     for i in range(0, len(hex_data), 6):
@@ -55,7 +61,8 @@ def encode(input_filename, output_filename):
 
         # Set the pixel color in the image
         img.putpixel((x, y), (r, g, b))
-        print(str(i) + " Pixel Color: " + rgb_to_ansi(r, g, b) + f"""∎\n\t Pixel Co-ords: ({x}, {y}) \n Pixel RGB value: \n\t\033[31mr {r}\033[0m, \033[32mg {g}\033[0m, \033[34mb {b}\033[0m""")
+        if output:
+            print(str(i) + " Pixel Color: " + rgb_to_ansi(r, g, b) + f"""∎\n\t Pixel Co-ords: ({x}, {y}) \n Pixel RGB value: \n\t\033[31mr {r}\033[0m, \033[32mg {g}\033[0m, \033[34mb {b}\033[0m""")
 
     # Save the image to a file
     # print(output_filename)
@@ -66,10 +73,11 @@ def encode(input_filename, output_filename):
     img.save(output_filename)
 
     endTime = time.time()
-    print("\033[31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m")
-    print(f"File \033[32m{input_filename}\033[0m saved to \033[35m{output_filename}\033[0m")
-    print(f"Image size: {width} x {height} with a count of {i} pixels.")
-    print(f"File converted in {endTime - startTime}s")
+    if output:
+        print("\033[31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m")
+        print(f"File \033[32m{input_filename}\033[0m saved to \033[35m{output_filename}\033[0m")
+        print(f"Image size: {width} x {height} with a count of {i} pixels.")
+        print(f"File converted in {endTime - startTime}s")
 
     with open(f"log.csv","a") as log:
         log.write(f""" {input_filename},{output_filename},{width},{height},{endTime - startTime}\n,,,,,rgb({r}\,{g}\,{b})""")
@@ -136,9 +144,14 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--extension",
                         help="The extension to use for the output file", default=None)
 
+    # Add the show output argument as a flag
+    parser.add_argument("-s", "--show",
+                        help="Show the output", default=False)
+
     # Parse the arguments
     args = parser.parse_args()
 
+    output = args.show
     inputFile = args.filename
 
     # print("args.output " + args.output)
